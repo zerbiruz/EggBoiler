@@ -1,10 +1,13 @@
 package com.example.eggboiler
 
+import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -55,19 +58,28 @@ class HomeScreenFragment : Fragment() {
         })
 
         binding.btnStart.setOnClickListener {
-            maxTime = binding.etTimeValue.text.toString().toLong() * 60000L
-            viewModel.maxTime.value = maxTime
-
-            if (viewModel.isRunning.value == true) {
-                viewModel.stopCountdown()
-                binding.tvTimeRemain.text = "00:00"
-                viewModel.isRunning.value = !viewModel.isRunning.value!!
+            if (binding.etTimeValue.text.isNotEmpty()) {
+                maxTime = binding.etTimeValue.text.toString().toLong() * 60000L
+                viewModel.maxTime.value = maxTime
+                if (viewModel.isRunning.value == true) {
+                    viewModel.stopCountdown()
+                    binding.tvTimeRemain.text = "00:00"
+                    viewModel.isRunning.value = !viewModel.isRunning.value!!
+                } else {
+                    viewModel.startCountdown()
+                    viewModel.isRunning.value = !viewModel.isRunning.value!!
+                    hideKeyBoard(it)
+                }
             } else {
-                viewModel.startCountdown()
-                viewModel.isRunning.value = !viewModel.isRunning.value!!
+                Toast.makeText(context, "please enter time!", Toast.LENGTH_SHORT).show()
             }
         }
 
         return binding.root
+    }
+
+    private fun hideKeyBoard(view: View) {
+        val imm = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
 }
